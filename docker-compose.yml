@@ -1,0 +1,40 @@
+# docker-compose.yml
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app 
+    command: npm start
+    environment:
+      # This tells the backend how to find the database container
+      MONGO_URI: "mongodb://mongo:27017/carpool"
+      JWT_SECRET: "Wow_this_Smart_car_pool_app_is_so_amazing_and_easy"
+    depends_on:
+      - mongo # Ensures database starts before the backend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the entire frontend directory for live-reloading
+      - ./frontend:/app
+      # This line is important! It prevents your local
+      # node_modules from overwriting the one in the container.
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  # Database Service (MongoDB)
+  mongo:
+    image: "mongo:latest"
+    ports:
+      - "27017:27017" # (Optional) To inspect DB from your computer
+    volumes:
+      - mongo-data:/data/db # Persists database data
+
+# Defines the persistent volume for the database
+volumes:
+  mongo-data:
