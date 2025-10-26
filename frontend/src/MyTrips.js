@@ -31,7 +31,23 @@ export default function MyTrips() {
         setLoading(false);
       });
   }, [user, nav]);
+const handleCancelTrip = async (tripId) => {
+    // Confirm before deleting
+    if (!window.confirm("Are you sure you want to cancel this trip?")) {
+      return;
+    }
 
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/trips/${tripId}`);
+      
+      // Update the UI by filtering out the cancelled trip
+      setMyTrips(prevTrips => prevTrips.filter(trip => trip._id !== tripId));
+
+    } catch (err) {
+      console.error("Error cancelling trip:", err);
+      alert("Could not cancel the trip. Please try again.");
+    }
+  };
   return (
     <div>
       <button style={{margin: "10px"}} onClick={() => nav('/dashboard')}>&larr; Back to Dashboard</button>
@@ -70,6 +86,14 @@ export default function MyTrips() {
             ) : (
               <p>No passengers have booked this trip yet.</p>
             )}
+            <button 
+              onClick={() => handleCancelTrip(trip._id)}
+              style={{ backgroundColor: '#dc3545', marginTop: '10px' }}
+              onMouseOver={e => e.currentTarget.style.backgroundColor = '#c82333'}
+              onMouseOut={e => e.currentTarget.style.backgroundColor = '#dc3545'}
+            >
+              Cancel This Trip
+            </button>
           </div>
         ))}
       </div>

@@ -90,5 +90,53 @@ router.post("/trips/:id/book", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+router.delete("/trips/:id", async (req, res) => {
+  try {
+    const trip = await Trip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found" });
+    }
+
+    await Trip.deleteOne({ _id: req.params.id });
+
+    res.json({ message: "Trip cancelled successfully" });
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+router.post("/trips/:id/cancel-booking", async (req, res) => {
+  try {
+    const { userId } = req.body; // We need to know *which* user is canceling
+    const trip = await Trip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found" });
+    }
+
+    // Find the index of the passenger to remove
+    const passengerIndex = trip.passengers.findIndex(
+      (p) => p.userId.toString() === userId
+    );
+
+    // If passenger isn't found in the array
+    if (passengerIndex === -1) {
+      return res.status(400).json({ message: "You are not booked on this trip" });
+    }
+
+    // Remove the passenger from the array
+    trip.passengers.splice(passengerIndex, 1);
+    
+    // Increment the seat count
+    trip.seats += 1;
+
+    await trip.save();
+    res.json(trip); // Send back the updated trip
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 export default router;
