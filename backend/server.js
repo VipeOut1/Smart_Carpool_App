@@ -1,7 +1,6 @@
-// backend/server.js
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose"; // <-- Uncomment this
+import mongoose from "mongoose"; 
 import router from "./routes.js";
 import 'dotenv/config';
 
@@ -9,10 +8,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Get the MongoDB connection string from the environment variable
+// requesting mongo connection from env
 const MONGO_URI = process.env.MONGO_URI;
 
-// Connect to MongoDB
+// Connection to MongoDB
 mongoose.connect(MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));

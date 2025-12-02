@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
-  phone: { type: String, required: true }, // <-- ADDED phone
+  phone: { type: String, required: true }, 
   password: String,
   role: { type: String, default: "passenger" }
 });
@@ -12,7 +12,7 @@ const passengerSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   name: String,
   phone: String
-}, { _id: false }); // _id: false stops Mongoose from creating sub-document IDs
+}, { _id: false }); // stops Mongoose from creating sub-document IDs
 
 const tripSchema = new mongoose.Schema({
   driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -22,7 +22,7 @@ const tripSchema = new mongoose.Schema({
   to: String,
   time: String,
   seats: Number,
-  farePerSeat: { type: Number, default: 250 }, // 👈 added here
+  farePerSeat: { type: Number, default: 250 }, // Fare
   note: { type: String, default: "" },
   passengers: [
     {

@@ -4,8 +4,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
-
-// Register/Login (combined)
 router.post("/auth", async (req, res) => {
   try {
     const { email, password, name, phone, mode } = req.body; 
@@ -15,8 +13,6 @@ router.post("/auth", async (req, res) => {
       }
       const hashed = await bcrypt.hash(password, 10);
       const user = await User.create({ name, email, phone, password: hashed }); 
-      
-      // 👇 THIS LINE IS UPDATED
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET); 
       
       return res.json({ token, user }); // Return user object on register
@@ -24,8 +20,7 @@ router.post("/auth", async (req, res) => {
       const user = await User.findOne({ email });
       if (!user || !(await bcrypt.compare(password, user.password)))
         return res.status(401).json({ message: "Invalid credentials" });
-      
-      // 👇 THIS LINE IS UPDATED
+
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET); 
       
       res.json({ token, user }); // Return user object on login
@@ -90,6 +85,7 @@ router.post("/trips/:id/book", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+// Trip ko cancel
 router.delete("/trips/:id", async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
@@ -108,7 +104,7 @@ router.delete("/trips/:id", async (req, res) => {
 });
 router.post("/trips/:id/cancel-booking", async (req, res) => {
   try {
-    const { userId } = req.body; // We need to know *which* user is canceling
+    const { userId } = req.body; // Jab cancel kr rahe tou app ko pata chale ke konsa user cancel kr raha hai.
     const trip = await Trip.findById(req.params.id);
 
     if (!trip) {
@@ -132,7 +128,7 @@ router.post("/trips/:id/cancel-booking", async (req, res) => {
     trip.seats += 1;
 
     await trip.save();
-    res.json(trip); // Send back the updated trip
+    res.json(trip); // Sending the updtaed trip back
 
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
