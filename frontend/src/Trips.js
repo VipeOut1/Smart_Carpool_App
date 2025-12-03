@@ -27,9 +27,24 @@ export default function Trips() {
 
   // Function to fetch trips
   const fetchTrips = () => {
-    axios.get(`${process.env.REACT_APP_API_URL}/trips`)
-      .then(r => setTrips(r.data))
-      .catch(err => console.error("Error fetching trips:", err));
+    axios.get(`${process.env.REACT_APP_API_URL}/trips`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true" // <--- THIS FIXES THE NGROK ISSUE
+        }
+      })
+      .then(r => {
+        // Double check: Is the data actually an array?
+        if (Array.isArray(r.data)) {
+          setTrips(r.data);
+        } else {
+          console.error("Unexpected API response (likely not JSON):", r.data);
+          setTrips([]); // Fallback to empty array so app doesn't crash
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching trips:", err);
+        setTrips([]); // Fallback on error
+      });
   };
 
   // handleBook function
