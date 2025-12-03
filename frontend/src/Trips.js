@@ -34,9 +34,8 @@ export default function Trips() {
 
   // handleBook function
   const handleBook = async (tripId) => {
-    // 👇 --- 1. CONFIRMATION ADDED ---
     if (!window.confirm("Are you sure you want to book this seat?")) {
-      return; // Stop if the user clicks "Cancel"
+      return; 
     }
 
     if (!user) return;
@@ -62,11 +61,9 @@ export default function Trips() {
     }
   };
 
-  // 👇 --- 2. NEW FUNCTION ADDED ---
   const handleCancelBooking = async (tripId) => {
     if (!user) return;
 
-    // Add a confirmation for canceling
     if (!window.confirm("Are you sure you want to cancel your booking?")) {
       return;
     }
@@ -74,10 +71,9 @@ export default function Trips() {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/trips/${tripId}/cancel-booking`,
-        { userId: user._id } // Send the user's ID to the backend
+        { userId: user._id }
       );
 
-      // Update the state with the new trip data (which has +1 seat)
       setTrips(trips.map((t) => (t._id === tripId ? res.data : t)));
       setMessage("Booking cancelled successfully.");
       setTimeout(() => setMessage(""), 2000);
@@ -100,9 +96,12 @@ export default function Trips() {
           {trips.length === 0 && <p>No trips available right now. Check back later!</p>}
           
           {trips.map((t) => {
-            // 👇 --- 3. LOGIC FOR BUTTONS ADDED ---
             const isDriver = user && t.driverId === user._id;
-            const isBooked = user && t.passengers.some((p) => p.userId === user._id);
+
+            // --- FIX APPLIED BELOW ---
+            // We check if t.passengers is actually an Array before running .some()
+            // This prevents crashes on old data where passengers might be undefined/null
+            const isBooked = user && Array.isArray(t.passengers) && t.passengers.some((p) => p.userId === user._id);
             
             return (
               <div key={t._id} style={{ border: "1px solid #ccc", padding: "10px", margin: "10px", borderRadius: "5px" }}>
@@ -118,8 +117,6 @@ export default function Trips() {
                   </p>
                 )}
                 
-                {/* 👇 --- 4. BUTTON LOGIC REPLACED --- */}
-
                 {/* Case 1: The user is the driver */}
                 {isDriver && (
                   <p style={{ color: "gray" }}><i>This is your trip.</i></p>
@@ -129,7 +126,7 @@ export default function Trips() {
                 {isBooked && !isDriver && (
                   <button
                     onClick={() => handleCancelBooking(t._id)}
-                    style={{ backgroundColor: "#ffc107", color: "black" }} // Yellow warning color
+                    style={{ backgroundColor: "#ffc107", color: "black" }} 
                     onMouseOver={e => e.currentTarget.style.backgroundColor = '#e0a800'}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = '#ffc107'}
                   >
@@ -143,7 +140,6 @@ export default function Trips() {
                     Book Seat
                   </button>
                 )}
-                {/* 👆 --- END OF REPLACEMENT --- */}
               </div>
             );
           })}
