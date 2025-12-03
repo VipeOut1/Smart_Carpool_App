@@ -21,24 +21,40 @@ export default function MyTrips() {
     }
 
     // Fetch trips posted by the current user
-    axios.get(`${process.env.REACT_APP_API_URL}/trips/my-trips/${user._id}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/trips/my-trips/${user._id}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true" // <--- FIX: Bypass Ngrok warning page
+        }
+      })
       .then(r => {
-        setMyTrips(r.data);
+        // FIX: Ensure data is an array before setting state
+        if (Array.isArray(r.data)) {
+          setMyTrips(r.data);
+        } else {
+          console.error("Unexpected API response (likely not JSON):", r.data);
+          setMyTrips([]); 
+        }
         setLoading(false);
       })
       .catch(err => {
         console.error("Error fetching my trips:", err);
+        setMyTrips([]); // Fallback to empty array
         setLoading(false);
       });
   }, [user, nav]);
-const handleCancelTrip = async (tripId) => {
+
+  const handleCancelTrip = async (tripId) => {
     // Confirm before deleting
     if (!window.confirm("Are you sure you want to cancel this trip?")) {
       return;
     }
 
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/trips/${tripId}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/trips/${tripId}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true" // <--- FIX: Bypass Ngrok warning page
+        }
+      });
       
       // Update the UI by filtering out the cancelled trip
       setMyTrips(prevTrips => prevTrips.filter(trip => trip._id !== tripId));
@@ -48,6 +64,7 @@ const handleCancelTrip = async (tripId) => {
       alert("Could not cancel the trip. Please try again.");
     }
   };
+
   return (
     <div>
       <button style={{margin: "10px"}} onClick={() => nav('/dashboard')}>&larr; Back to Dashboard</button>
@@ -59,7 +76,8 @@ const handleCancelTrip = async (tripId) => {
           <p>You have not posted any trips yet. <span onClick={() => nav('/post-trip')} style={{color: 'blue', cursor: 'pointer'}}>Post one now!</span></p>
         )}
 
-        {myTrips.map((trip) => (
+        {/* FIX: Ensure myTrips is an array before mapping */}
+        {Array.isArray(myTrips) && myTrips.map((trip) => (
           <div key={trip._id} style={{ border: "1px solid #ccc", padding: "10px", margin: "10px", borderRadius: "5px" }}>
             <h3>{trip.from} → {trip.to}</h3>
             <p><b>Time:</b> {trip.time}</p>
@@ -76,7 +94,7 @@ const handleCancelTrip = async (tripId) => {
             {trip.passengers && trip.passengers.length > 0 ? (
               <ul style={{listStyle: 'none', paddingLeft: 0}}>
                 {trip.passengers
-                  .filter(p => p) // <-- THIS IS THE FIX: Filter out any null/undefined passengers
+                  .filter(p => p) // Filter out null passengers
                   .map((p, index) => (
                   <li key={index} style={{background: '#f9f9f9', padding: '8px', borderRadius: '4px', marginBottom: '5px'}}>
                     <b>Name:</b> {p.name} | <b>Phone:</b> {p.phone}
@@ -100,4 +118,3 @@ const handleCancelTrip = async (tripId) => {
     </div>
   );
 }
-
