@@ -1,11 +1,4 @@
-# Dependencies
 /node_modules
-
-# Environment files
 .env
-
-# Build output
 /build
-
-# Crash reports
 npm-debug.log*

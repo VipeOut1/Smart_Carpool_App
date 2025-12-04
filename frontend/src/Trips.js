@@ -29,21 +29,21 @@ export default function Trips() {
   const fetchTrips = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/trips`, {
         headers: {
-          "ngrok-skip-browser-warning": "true" // <--- THIS FIXES THE NGROK ISSUE
+          "ngrok-skip-browser-warning": "true" // FIX: Bypass Ngrok warning page
         }
       })
       .then(r => {
-        // Double check: Is the data actually an array?
+        // FIX: Ensure data is an array before setting state
         if (Array.isArray(r.data)) {
           setTrips(r.data);
         } else {
           console.error("Unexpected API response (likely not JSON):", r.data);
-          setTrips([]); // Fallback to empty array so app doesn't crash
+          setTrips([]); 
         }
       })
       .catch(err => {
         console.error("Error fetching trips:", err);
-        setTrips([]); // Fallback on error
+        setTrips([]);
       });
   };
 
@@ -62,13 +62,25 @@ export default function Trips() {
     };
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/trips/${tripId}/book`, { 
-        passenger: passengerData 
-      });
-      // Update the list with the new trip data
-      setTrips(trips.map(t => (t._id === tripId ? res.data : t)));
-      setMessage("Booked successfully!");
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/trips/${tripId}/book`, 
+        { passenger: passengerData },
+        { 
+          headers: { 
+            "ngrok-skip-browser-warning": "true" // FIX: Bypass Ngrok warning page
+          } 
+        }
+      );
+
+      // FIX: Ensure response is a valid object
+      if (res.data && typeof res.data === 'object') {
+        setTrips(trips.map(t => (t._id === tripId ? res.data : t)));
+        setMessage("Booked successfully!");
+      } else {
+        console.error("Invalid response from booking:", res.data);
+      }
       setTimeout(() => setMessage(""), 2000);
+
     } catch (error) {
       console.error("Error booking trip:", error);
       setMessage(error.response?.data?.message || "Could not book trip");
@@ -76,6 +88,7 @@ export default function Trips() {
     }
   };
 
+  // handleCancelBooking function
   const handleCancelBooking = async (tripId) => {
     if (!user) return;
 
@@ -86,11 +99,21 @@ export default function Trips() {
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/trips/${tripId}/cancel-booking`,
-        { userId: user._id }
+        { userId: user._id },
+        { 
+          headers: { 
+            "ngrok-skip-browser-warning": "true" // FIX: Bypass Ngrok warning page
+          } 
+        }
       );
 
-      setTrips(trips.map((t) => (t._id === tripId ? res.data : t)));
-      setMessage("Booking cancelled successfully.");
+      // FIX: Ensure response is a valid object
+      if (res.data && typeof res.data === 'object') {
+        setTrips(trips.map((t) => (t._id === tripId ? res.data : t)));
+        setMessage("Booking cancelled successfully.");
+      } else {
+         console.error("Invalid response from cancel:", res.data);
+      }
       setTimeout(() => setMessage(""), 2000);
 
     } catch (error) {
@@ -110,12 +133,11 @@ export default function Trips() {
         <div style={{ borderTop: "2px solid #eee", paddingTop: "10px" }}>
           {trips.length === 0 && <p>No trips available right now. Check back later!</p>}
           
-          {trips.map((t) => {
+          {/* FIX: Ensure trips is an array before mapping */}
+          {Array.isArray(trips) && trips.map((t) => {
             const isDriver = user && t.driverId === user._id;
 
-            // --- FIX APPLIED BELOW ---
-            // We check if t.passengers is actually an Array before running .some()
-            // This prevents crashes on old data where passengers might be undefined/null
+            // FIX: Ensure passengers array exists before checking .some()
             const isBooked = user && Array.isArray(t.passengers) && t.passengers.some((p) => p.userId === user._id);
             
             return (

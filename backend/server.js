@@ -11,11 +11,11 @@ app.use(express.json());
 // requesting mongo connection from env
 const MONGO_URI = process.env.MONGO_URI;
 
-// Connection to MongoDB
+// Connection MongoDB se
 mongoose.connect(MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
 app.use("/api", router);
-
+//console par confirmation log laga rahe jab backend connect ho jaye 
 app.listen(5000, () => console.log("Smart Carpool running on port 5000"));

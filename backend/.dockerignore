@@ -1,9 +1,4 @@
-# Ignore dependencies
 node_modules
-
-# Ignore git files
 .git
 .gitignore
-
-# Ignore env files
 .env

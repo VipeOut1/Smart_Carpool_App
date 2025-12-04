@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Login";
 import Trips from "./Trips";
-import Dashboard from "./Dashboard"; // <-- NEW
-import PostTrip from "./PostTrip"; // <-- NEW
-import MyTrips from "./MyTrips"; // <-- NEW
+import Dashboard from "./Dashboard";
+import PostTrip from "./PostTrip"; 
+import MyTrips from "./MyTrips"; 
 
 // This component protects routes that require a user to be logged in
 const ProtectedRoute = ({ children }) => {
@@ -21,7 +21,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         
-        {/* Protected Routes */}
+        {}
         <Route 
           path="/dashboard" 
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 

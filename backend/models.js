@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+//Yahan Mongo se connection kr rahe, mongose is basically a special language that mongodb understands
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },

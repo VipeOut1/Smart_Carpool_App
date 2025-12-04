@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
-  const [data, setData] = useState({ email: "", password: "", name: "", phone: "" }); // <-- Added phone
+  const [data, setData] = useState({ email: "", password: "", name: "", phone: "" }); // Phone number added
   const [error, setError] = useState(""); // For showing errors
   const nav = useNavigate();
 
@@ -15,9 +15,9 @@ export default function Login() {
     
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/auth`, { ...data, mode });
-      // Save the *entire* user object, which includes _id and phone
+      // Save the entire user object, which includes _id and phone
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      nav("/dashboard"); // <-- Navigate to dashboard
+      nav("/dashboard"); // Navigate to dashboard
     } catch (err) {
       console.error("Auth error", err.response);
       setError(err.response?.data?.message || "An error occurred");

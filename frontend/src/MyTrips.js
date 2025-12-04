@@ -102,9 +102,9 @@ export default function MyTrips() {
                 ))}
               </ul>
             ) : (
-              <p>No passengers have booked this trip yet.</p>
+              <p>No passengers have booked this trip yet.</p> // If no passenger has been booked
             )}
-            <button 
+            <button  // for canceling trips
               onClick={() => handleCancelTrip(trip._id)}
               style={{ backgroundColor: '#dc3545', marginTop: '10px' }}
               onMouseOver={e => e.currentTarget.style.backgroundColor = '#c82333'}
